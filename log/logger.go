@@ -2,8 +2,8 @@ package log
 
 import (
 	"fmt"
-	"github.com/OneOrbit/common-utils/configuration"
-	"github.com/OneOrbit/common-utils/context"
+	"github.com/NitinD97/common-utils/configuration"
+	"github.com/NitinD97/common-utils/context"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"

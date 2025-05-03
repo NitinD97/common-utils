@@ -1,4 +1,4 @@
-module github.com/OneOrbit/common-utils
+module github.com/NitinD97/common-utils
 
 go 1.24.1
 

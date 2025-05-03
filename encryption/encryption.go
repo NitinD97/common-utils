@@ -2,7 +2,7 @@ package encryption
 
 import (
 	"errors"
-	"github.com/OneOrbit/common-utils/constants"
+	"github.com/NitinD97/common-utils/constants"
 	"slices"
 )
 
