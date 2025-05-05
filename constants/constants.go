@@ -1,5 +1,9 @@
 package constants
 
+const (
+	RequestId = "requestId"
+)
+
 type Enum string
 
 const (

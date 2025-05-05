@@ -3,8 +3,10 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 	"net/url"
 )
 
@@ -20,7 +22,7 @@ type PgConfig struct {
 	PoolMinConnections int    `json:"pool_min_conns"`
 }
 
-func Init(pgConfig PgConfig) (*pgxpool.Pool, error) {
+func Init(pgConfig PgConfig, logger *zap.Logger) (*pgxpool.Pool, error) {
 	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
 		pgConfig.User,
 		url.PathEscape(pgConfig.Password),
@@ -37,6 +39,7 @@ func Init(pgConfig PgConfig) (*pgxpool.Pool, error) {
 
 	config.MinConns = int32(pgConfig.PoolMinConnections)
 	config.MinIdleConns = int32(pgConfig.PoolMinConnections)
+	config.ConnConfig.Tracer = &CustomTracer{logger: logger}
 
 	conn, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
@@ -48,5 +51,37 @@ func Init(pgConfig PgConfig) (*pgxpool.Pool, error) {
 func Disconnect() {
 	if db != nil {
 		db.Close()
+	}
+}
+
+type CustomTracer struct {
+	logger *zap.Logger
+}
+
+func (ct *CustomTracer) TraceQueryStart(
+	ctx context.Context,
+	_ *pgx.Conn,
+	data pgx.TraceQueryStartData,
+) context.Context {
+	ct.logger.Debug("Query started",
+		zap.String("sql", data.SQL),
+		zap.Any("args", data.Args),
+	)
+	return ctx
+}
+
+func (ct *CustomTracer) TraceQueryEnd(
+	ctx context.Context,
+	_ *pgx.Conn,
+	data pgx.TraceQueryEndData,
+) {
+	if data.Err != nil {
+		ct.logger.Error("Query failed",
+			zap.Error(data.Err),
+		)
+	} else {
+		ct.logger.Debug("Query succeeded",
+			zap.String("commandTag", data.CommandTag.String()),
+		)
 	}
 }

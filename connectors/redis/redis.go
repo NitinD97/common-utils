@@ -1,7 +1,7 @@
 package redis
 
 import (
-	"context"
+	"github.com/NitinD97/common-utils/context"
 	"github.com/goccy/go-json"
 	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
@@ -23,8 +23,8 @@ func NewRedisCache(cfg Config) *Cache {
 		})}
 }
 
-func (cache *Cache) Ping(ctx context.Context) error {
-	result, err := cache.rDB.Ping(ctx).Result()
+func (cache *Cache) Ping(ctx *context.Context) error {
+	result, err := cache.rDB.Ping(ctx.Context).Result()
 	if err != nil {
 		return errors.Wrap(err, "failed to ping redis")
 	}
@@ -41,22 +41,22 @@ func (cache *Cache) Disconnect() error {
 	return nil
 }
 
-func (cache *Cache) SetJson(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+func (cache *Cache) SetJson(ctx *context.Context, key string, value interface{}, expiration time.Duration) error {
 	bytes, err := json.Marshal(value)
 	if err != nil {
 		return err
 	}
-	result := cache.rDB.Set(ctx, key, bytes, expiration)
+	result := cache.rDB.Set(ctx.Context, key, bytes, expiration)
 	return result.Err()
 }
 
-func (cache *Cache) Set(ctx context.Context, key string, value string, expiration time.Duration) error {
-	result := cache.rDB.Set(ctx, key, value, expiration)
+func (cache *Cache) Set(ctx *context.Context, key string, value string, expiration time.Duration) error {
+	result := cache.rDB.Set(ctx.Context, key, value, expiration)
 	return errors.Wrapf(result.Err(), "failed to set key %s", key)
 }
 
-func (cache *Cache) Get(ctx context.Context, key string) (string, error) {
-	result, err := cache.rDB.Get(ctx, key).Result()
+func (cache *Cache) Get(ctx *context.Context, key string) (string, error) {
+	result, err := cache.rDB.Get(ctx.Context, key).Result()
 	switch {
 	case errors.Is(err, redis.Nil):
 		return "", ErrKeyNotFound
@@ -68,8 +68,8 @@ func (cache *Cache) Get(ctx context.Context, key string) (string, error) {
 	return result, nil
 }
 
-func (cache *Cache) GetJSON(ctx context.Context, key string, value interface{}) error {
-	result := cache.rDB.Get(ctx, key)
+func (cache *Cache) GetJSON(ctx *context.Context, key string, value interface{}) error {
+	result := cache.rDB.Get(ctx.Context, key)
 	storedBytes, err := result.Bytes()
 	if err != nil {
 		return err
@@ -77,6 +77,6 @@ func (cache *Cache) GetJSON(ctx context.Context, key string, value interface{}) 
 	return json.Unmarshal(storedBytes, &value)
 }
 
-func (cache *Cache) Delete(ctx context.Context, key string) error {
-	return cache.rDB.Del(ctx, key).Err()
+func (cache *Cache) Delete(ctx *context.Context, key string) error {
+	return cache.rDB.Del(ctx.Context, key).Err()
 }
