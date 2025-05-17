@@ -3,9 +3,9 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"github.com/NitinD97/common-utils/errors"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"net/url"
 )
@@ -34,7 +34,7 @@ func Init(pgConfig PgConfig, logger *zap.Logger) (*pgxpool.Pool, error) {
 
 	config, err := pgxpool.ParseConfig(dbURL)
 	if err != nil {
-		return nil, errors.Errorf("failed to parse database URL: %s, error: %w", dbURL, err)
+		return nil, errors.Wrap(err, fmt.Sprintf("failed to parse database URL: %s", dbURL))
 	}
 
 	config.MinConns = int32(pgConfig.PoolMinConnections)
@@ -43,7 +43,7 @@ func Init(pgConfig PgConfig, logger *zap.Logger) (*pgxpool.Pool, error) {
 
 	conn, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
-		return nil, errors.Errorf("failed to connect to database: %s, error: %w", dbURL, err)
+		return nil, errors.Wrap(err, fmt.Sprintf("failed to connect to database: %s", dbURL))
 	}
 	return conn, nil
 }

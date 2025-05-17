@@ -2,8 +2,14 @@ package encryption
 
 import (
 	"errors"
-	"github.com/NitinD97/common-utils/constants"
 	"slices"
+)
+
+type EncryptionAlgorithm string
+
+const (
+	EncryptionAlgorithmRSA     EncryptionAlgorithm = "RSA"
+	EncryptionAlgorithmED25519 EncryptionAlgorithm = "ED25519"
 )
 
 // KeyGenerator defines the interface for key generation
@@ -12,7 +18,7 @@ type KeyGenerator interface {
 }
 
 // KeyGeneratorFactory creates a KeyGenerator based on the algorithm
-func KeyGeneratorFactory(algo constants.EncryptionAlgorithm, args ...interface{}) (KeyGenerator, error) {
+func KeyGeneratorFactory(algo EncryptionAlgorithm, args ...interface{}) (KeyGenerator, error) {
 	var bits int
 	if len(args) > 0 {
 		if b, ok := args[0].(int); ok {
@@ -23,12 +29,12 @@ func KeyGeneratorFactory(algo constants.EncryptionAlgorithm, args ...interface{}
 	}
 
 	switch algo {
-	case constants.EncryptionAlgorithmRSA:
+	case EncryptionAlgorithmRSA:
 		if !slices.Contains(rsaBitSizeParams, bits) {
 			return nil, errors.New("invalid bit size for RSA")
 		}
 		return &rsaKeyGenerator{Bits: bits}, nil
-	case constants.EncryptionAlgorithmED25519:
+	case EncryptionAlgorithmED25519:
 		return &ed25519KeyGenerator{}, nil
 	default:
 		return nil, errors.New("unsupported algorithm")

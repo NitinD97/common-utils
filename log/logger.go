@@ -49,7 +49,7 @@ func NewLogger(ctx *context.Context) *zap.Logger {
 
 	}
 	logger.Logger = logger.WithOptions(zap.AddCaller(), zap.AddCallerSkip(0))
-	logger.Logger = logger.WithContext(ctx)
+	logger.Logger = WithContext(ctx)
 
 	return logger.Logger
 }
@@ -58,7 +58,7 @@ func GetLogger() *zap.Logger {
 	return logger.Logger
 }
 
-func (logger *Logger) WithContext(ctx *context.Context) *zap.Logger {
+func WithContext(ctx *context.Context) *zap.Logger {
 	fields := make([]zap.Field, 0)
 	for k, v := range ctx.GetContextMap() {
 		fields = append(fields, zap.Any(k, v))

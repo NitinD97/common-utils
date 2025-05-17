@@ -7,17 +7,19 @@ import (
 )
 
 type Context struct {
-	data    *map[string]any
-	mutex   *sync.RWMutex
-	Context context.Context
+	data       *map[string]any
+	mutex      *sync.RWMutex
+	Context    context.Context
+	GinContext *gin.Context
 }
 
 func NewContext() *Context {
 	data := make(map[string]any)
 	return &Context{
-		data:    &data,
-		mutex:   &sync.RWMutex{},
-		Context: context.Background(),
+		data:       &data,
+		mutex:      &sync.RWMutex{},
+		Context:    context.Background(),
+		GinContext: nil,
 	}
 }
 
@@ -27,9 +29,10 @@ func NewContextFromGinContext(ginCtx *gin.Context) *Context {
 		data[key] = value.(string)
 	}
 	return &Context{
-		data:    &data,
-		mutex:   &sync.RWMutex{},
-		Context: context.Background(),
+		data:       &data,
+		mutex:      &sync.RWMutex{},
+		Context:    context.Background(),
+		GinContext: ginCtx,
 	}
 }
 

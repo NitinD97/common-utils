@@ -1,9 +1,10 @@
 package redis
 
 import (
+	"fmt"
 	"github.com/NitinD97/common-utils/context"
+	"github.com/NitinD97/common-utils/errors"
 	"github.com/goccy/go-json"
-	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
 	"strconv"
 	"time"
@@ -52,7 +53,7 @@ func (cache *Cache) SetJson(ctx *context.Context, key string, value interface{},
 
 func (cache *Cache) Set(ctx *context.Context, key string, value string, expiration time.Duration) error {
 	result := cache.rDB.Set(ctx.Context, key, value, expiration)
-	return errors.Wrapf(result.Err(), "failed to set key %s", key)
+	return errors.Wrap(result.Err(), fmt.Sprintf("failed to set key %s", key))
 }
 
 func (cache *Cache) Get(ctx *context.Context, key string) (string, error) {
