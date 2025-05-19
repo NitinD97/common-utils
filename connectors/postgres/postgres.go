@@ -67,7 +67,7 @@ func (ct *CustomTracer) TraceQueryStart(
 ) context.Context {
 	dbQueryId := uuid.NewString()
 	ctx = context.WithValue(ctx, enums.DbQueryId, dbQueryId)
-	ct.logger.Debug("Query started",
+	ct.logger.Info("Query started",
 		zap.String("sql", data.SQL),
 		zap.Any("args", data.Args),
 		zap.Any(enums.RequestId, ctx.Value(enums.RequestId)),
@@ -88,7 +88,7 @@ func (ct *CustomTracer) TraceQueryEnd(
 			zap.String(enums.DbQueryId, ctx.Value(enums.DbQueryId).(string)),
 		)
 	} else {
-		ct.logger.Debug("Query succeeded",
+		ct.logger.Info("Query succeeded",
 			zap.String("commandTag", data.CommandTag.String()),
 			zap.Any(enums.RequestId, ctx.Value(enums.RequestId)),
 			zap.String(enums.DbQueryId, ctx.Value(enums.DbQueryId).(string)),

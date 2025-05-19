@@ -35,7 +35,7 @@ func NewLogger(ctx *context.Context) *zap.Logger {
 			zap.DebugLevel,
 		))
 		logger = &Logger{
-			zap.New(core),
+			zap.New(core, zap.IncreaseLevel(zapcore.DebugLevel)),
 		}
 	} else {
 		l, err := zap.NewDevelopment()
