@@ -36,10 +36,11 @@ func NewContextFromGinContext(ginCtx *gin.Context) *Context {
 	}
 }
 
-func (c *Context) Set(key string, value string) {
+func (c *Context) Set(key string, value any) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	(*c.data)[key] = value
+	c.Context = context.WithValue(c.Context, key, value)
 }
 
 func (c *Context) Get(key string) any {

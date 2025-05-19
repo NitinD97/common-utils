@@ -3,7 +3,9 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"github.com/NitinD97/common-utils/enums"
 	"github.com/NitinD97/common-utils/errors"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
@@ -63,9 +65,13 @@ func (ct *CustomTracer) TraceQueryStart(
 	_ *pgx.Conn,
 	data pgx.TraceQueryStartData,
 ) context.Context {
+	dbQueryId := uuid.NewString()
+	ctx = context.WithValue(ctx, enums.DbQueryId, dbQueryId)
 	ct.logger.Debug("Query started",
 		zap.String("sql", data.SQL),
 		zap.Any("args", data.Args),
+		zap.Any(enums.RequestId, ctx.Value(enums.RequestId)),
+		zap.String(enums.DbQueryId, dbQueryId),
 	)
 	return ctx
 }
@@ -78,10 +84,14 @@ func (ct *CustomTracer) TraceQueryEnd(
 	if data.Err != nil {
 		ct.logger.Error("Query failed",
 			zap.Error(data.Err),
+			zap.Any(enums.RequestId, ctx.Value(enums.RequestId)),
+			zap.String(enums.DbQueryId, ctx.Value(enums.DbQueryId).(string)),
 		)
 	} else {
 		ct.logger.Debug("Query succeeded",
 			zap.String("commandTag", data.CommandTag.String()),
+			zap.Any(enums.RequestId, ctx.Value(enums.RequestId)),
+			zap.String(enums.DbQueryId, ctx.Value(enums.DbQueryId).(string)),
 		)
 	}
 }
